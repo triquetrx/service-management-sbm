@@ -130,7 +130,7 @@ public class RequestService {
 	@Transactional
 	public ServiceRequest deleteRequest(String token, long id)
 			throws InvalidDataAccessException, RequestNotExistsException {
-		if (authClient.validatingToken(token).getUserRole().equalsIgnoreCase("ROE_ADMIN")) {
+		if (authClient.validatingToken(token).getUserRole().equalsIgnoreCase("ROLE_ADMIN")) {
 			ServiceRequest serviceRequest = serviceRequestRepository.findById(id).get();
 			serviceRequestRepository.delete(serviceRequest);
 			return serviceRequest;
@@ -147,19 +147,17 @@ public class RequestService {
 	@Transactional
 	public ServiceRequest updateRequest(String token, long id, ServiceRequestDTO requestDTO)
 			throws InvalidDataAccessException, RequestNotExistsException {
-		if (authClient.validatingToken(token).getUserRole().equalsIgnoreCase("ROE_ADMIN")) {
+		if (authClient.validatingToken(token).getUserRole().equalsIgnoreCase("ROLE_ADMIN")) {
 			ServiceRequest serviceRequest = serviceRequestRepository.findById(id).get();
 			serviceRequest.setDescription(requestDTO.getDescription());
 			serviceRequest.setProblem(requestDTO.getProblem());
 			return serviceRequestRepository.save(serviceRequest);
 		}
-		List<ServiceRequest> myRequests = getMyRequest(token);
-		for (ServiceRequest myRequest : myRequests) {
-			if (myRequest.getId() == id) {
-				myRequest.setDescription(requestDTO.getDescription());
-				myRequest.setProblem(requestDTO.getProblem());
-				return serviceRequestRepository.save(myRequest);
-			}
+		Optional<ServiceRequest> myRequest = getMyRequest(token).parallelStream().filter(ele -> ele.getId() == id)
+				.findFirst();
+		if (myRequest.isPresent()) {
+			myRequest.get().setDescription(requestDTO.getDescription());
+			myRequest.get().setProblem(requestDTO.getProblem());
 		}
 		throw new RequestNotExistsException("ITEM REQUESTED TO UPDATE IS INVALID");
 	}
@@ -234,7 +232,7 @@ public class RequestService {
 		throw new InvalidDataAccessException("INVALID DATA ACCESS");
 	}
 
-	//Parallel Stream pending
+	// Parallel Stream pending
 	@Transactional
 	public AppServiceReqReport getByReportId(String token, long id) throws InvalidDataAccessException {
 		ValidatingDTO validator = authClient.validatingToken(token);
