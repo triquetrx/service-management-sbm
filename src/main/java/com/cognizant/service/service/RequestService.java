@@ -232,7 +232,6 @@ public class RequestService {
 		throw new InvalidDataAccessException("INVALID DATA ACCESS");
 	}
 
-	// Parallel Stream pending
 	@Transactional
 	public AppServiceReqReport getByReportId(String token, long id) throws InvalidDataAccessException {
 		ValidatingDTO validator = authClient.validatingToken(token);
