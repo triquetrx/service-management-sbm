@@ -14,6 +14,7 @@ public @Data @AllArgsConstructor @NoArgsConstructor class Users {
 	private long mobile;
 	private Date registrationDate;
 	private Date birthDate;
+	private String gender;
 	private String role;
 	private boolean active;
 
